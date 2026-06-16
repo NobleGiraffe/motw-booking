@@ -92,14 +92,14 @@ export default function Home() {
           </div>
           <div className={styles.heroRight}>
             <div className={styles.heroImgMain}>
-              <Image src="/motw-cart-1.png" alt="MOTW coffee cart setup" fill style={{ objectFit: 'cover' }} priority />
+              <Image src="/hero-main.jpg" alt="MOTW coffee cart with neon sign and event banner" fill style={{ objectFit: 'cover' }} priority />
             </div>
             <div className={styles.heroImgSide}>
               <div className={styles.heroImgSmall}>
-                <Image src="/motw-cart-2.png" alt="MOTW coffee cart at event" fill style={{ objectFit: 'cover' }} />
+                <Image src="/drinks-lineup.jpg" alt="MOTW signature drinks lineup" fill style={{ objectFit: 'cover' }} />
               </div>
               <div className={styles.heroImgSmall}>
-                <Image src="/motw-cart-3.png" alt="MOTW coffee cart panda cafe" fill style={{ objectFit: 'cover' }} />
+                <Image src="/cart-outdoor.jpg" alt="MOTW coffee cart at outdoor event" fill style={{ objectFit: 'cover' }} />
               </div>
             </div>
           </div>
@@ -139,17 +139,33 @@ export default function Home() {
       {/* ── GALLERY ── */}
       <section className={styles.gallery}>
         <div className={styles.container}>
-          <p className={styles.sectionEyebrow}>In action</p>
-          <h2 className={styles.sectionTitle}>Seen at events across Palatine</h2>
+          <p className={styles.sectionEyebrow}>The menu</p>
+          <h2 className={styles.sectionTitle}>Crafted drinks your guests will love</h2>
           <div className={styles.galleryGrid}>
             <div className={styles.galleryItem + ' ' + styles.galleryLarge}>
-              <Image src="/motw-cart-3.png" alt="MOTW at a local cafe popup" fill style={{ objectFit: 'cover' }} />
+              <Image src="/drinks-lineup.jpg" alt="MOTW full signature drinks lineup" fill style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
             </div>
             <div className={styles.galleryItem}>
-              <Image src="/motw-cart-1.png" alt="MOTW espresso setup" fill style={{ objectFit: 'cover' }} />
+              <Image src="/drink-caramel.jpg" alt="MOTW caramel espresso drink closeup" fill style={{ objectFit: 'cover' }} />
             </div>
             <div className={styles.galleryItem}>
-              <Image src="/motw-cart-2.png" alt="MOTW at outdoor event" fill style={{ objectFit: 'cover' }} />
+              <Image src="/drink-matcha.jpg" alt="MOTW matcha latte closeup" fill style={{ objectFit: 'cover' }} />
+            </div>
+          </div>
+
+          {/* Cart photos strip */}
+          <div className={styles.cartStrip}>
+            <div className={styles.cartStripItem}>
+              <Image src="/hero-main.jpg" alt="MOTW cart with neon sign" fill style={{ objectFit: 'cover', objectPosition: 'center 20%' }} />
+            </div>
+            <div className={styles.cartStripItem}>
+              <Image src="/cart-banner.jpg" alt="MOTW cart with event banner" fill style={{ objectFit: 'cover' }} />
+            </div>
+            <div className={styles.cartStripItem}>
+              <Image src="/cart-outdoor.jpg" alt="MOTW cart at outdoor event" fill style={{ objectFit: 'cover' }} />
+            </div>
+            <div className={styles.cartStripItem}>
+              <Image src="/drink-dark.jpg" alt="MOTW dark espresso closeup" fill style={{ objectFit: 'cover' }} />
             </div>
           </div>
         </div>
@@ -182,7 +198,7 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.bookImgWrap}>
-                <img src="/motw-promo.png" alt="MOTW coffee cart promo" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '12px' }} />
+                <img src="/espresso-machine.jpg" alt="MOTW professional espresso machine" style={{ width: '100%', height: '320px', objectFit: 'cover', objectPosition: 'center 40%', display: 'block', borderRadius: '12px' }} />
               </div>
             </div>
 
