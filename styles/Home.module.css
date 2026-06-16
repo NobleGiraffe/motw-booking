@@ -265,10 +265,15 @@
 .contactItem a:hover { text-decoration: underline; }
 .contactIcon { font-size: 18px; width: 28px; text-align: center; }
 .bookImgWrap {
-  position: relative;
-  height: 280px;
   border-radius: 14px;
   overflow: hidden;
+}
+
+.bookImgWrap img {
+  width: 100% !important;
+  height: auto !important;
+  position: relative !important;
+  border-radius: 14px;
 }
 
 /* Form card */
@@ -435,7 +440,7 @@
   .heroRight { height: 320px; }
   .featureGrid { grid-template-columns: repeat(2, 1fr); }
   .bookLayout { grid-template-columns: 1fr; gap: 40px; }
-  .bookImgWrap { height: 220px; }
+  .bookImgWrap { height: auto; }
   .galleryGrid { grid-template-columns: 1fr 1fr; grid-template-rows: 200px; }
   .galleryLarge { grid-row: auto; }
 }

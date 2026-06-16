@@ -182,7 +182,7 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.bookImgWrap}>
-                <Image src="/motw-promo.png" alt="MOTW coffee cart promo" fill style={{ objectFit: 'cover', borderRadius: '12px' }} />
+                <img src="/motw-promo.png" alt="MOTW coffee cart promo" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '12px' }} />
               </div>
             </div>
 
