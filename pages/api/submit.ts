@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 type FormData = {
   firstName: string
@@ -38,6 +38,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: 'Invalid email address' })
   }
 
+  if (!process.env.RESEND_API_KEY) {
+    console.error('Missing RESEND_API_KEY environment variable')
+    return res.status(500).json({ message: 'Email service is not configured. Please contact us directly.' })
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
   // Format date for display
   const formattedDate = new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', {
     weekday: 'long',
@@ -53,18 +60,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const displayHour = hour % 12 || 12
   const formattedTime = `${displayHour}:${minutes} ${ampm}`
 
-  // Email transport — uses env vars set in Vercel
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp-mail.outlook.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    tls: { ciphers: 'SSLv3' },
-  })
-
   const htmlBody = `
     <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
       <div style="background: #1a1a1a; padding: 24px; text-align: center; border-radius: 8px 8px 0 0;">
@@ -72,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       </div>
       <div style="border: 1px solid #e8e4df; border-top: none; border-radius: 0 0 8px 8px; padding: 28px;">
         <h2 style="font-size: 18px; margin: 0 0 6px;">New booking request</h2>
-        <p style="color: #888; font-size: 13px; margin: 0 0 24px;">Submitted via motwcoffee.com</p>
+        <p style="color: #888; font-size: 13px; margin: 0 0 24px;">Submitted via motwpalatine.com</p>
 
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
@@ -113,41 +108,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     </div>
   `
 
+  const customerHtml = `
+    <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <div style="background: #1a1a1a; padding: 24px; text-align: center; border-radius: 8px 8px 0 0;">
+        <p style="color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; margin: 0;">MOTW COFFEE</p>
+      </div>
+      <div style="border: 1px solid #e8e4df; border-top: none; border-radius: 0 0 8px 8px; padding: 28px;">
+        <h2 style="font-size: 18px; margin: 0 0 12px;">Thanks, ${firstName}!</h2>
+        <p style="font-size: 14px; line-height: 1.7; color: #444;">
+          We received your coffee cart booking request for <strong>${formattedDate}</strong> at <strong>${formattedTime}</strong>.
+          We'll be in touch within 24 hours to confirm the details.
+        </p>
+        <p style="font-size: 14px; line-height: 1.7; color: #444; margin-top: 12px;">
+          In the meantime, feel free to reach us at
+          <a href="mailto:M3H-MOTW@outlook.com" style="color: #1a1a1a;">M3H-MOTW@outlook.com</a>
+          or find us on Instagram <strong>@MOTWPalatine</strong>.
+        </p>
+      </div>
+    </div>
+  `
+
   try {
-    // Notify MOTW
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
+    // Notify MOTW — sent from Resend's domain, replies go to the customer
+    const notifyResult = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'MOTW Bookings <onboarding@resend.dev>',
       to: process.env.NOTIFY_EMAIL || 'M3H-MOTW@outlook.com',
-      replyTo: email,
+      reply_to: email,
       subject: `New booking request — ${firstName} ${lastName} · ${formattedDate}`,
       html: htmlBody,
     })
 
+    if (notifyResult.error) {
+      console.error('Resend notify error:', notifyResult.error)
+      return res.status(500).json({ message: 'Failed to send email. Please try again or contact us directly.' })
+    }
+
     // Auto-reply to customer
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
+    const replyResult = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'MOTW Coffee <onboarding@resend.dev>',
       to: email,
       subject: 'We received your booking request — MOTW Coffee',
-      html: `
-        <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-          <div style="background: #1a1a1a; padding: 24px; text-align: center; border-radius: 8px 8px 0 0;">
-            <p style="color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; margin: 0;">MOTW COFFEE</p>
-          </div>
-          <div style="border: 1px solid #e8e4df; border-top: none; border-radius: 0 0 8px 8px; padding: 28px;">
-            <h2 style="font-size: 18px; margin: 0 0 12px;">Thanks, ${firstName}!</h2>
-            <p style="font-size: 14px; line-height: 1.7; color: #444;">
-              We received your coffee cart booking request for <strong>${formattedDate}</strong> at <strong>${formattedTime}</strong>.
-              We'll be in touch within 24 hours to confirm the details.
-            </p>
-            <p style="font-size: 14px; line-height: 1.7; color: #444; margin-top: 12px;">
-              In the meantime, feel free to reach us at
-              <a href="mailto:M3H-MOTW@outlook.com" style="color: #1a1a1a;">M3H-MOTW@outlook.com</a>
-              or find us on Instagram <strong>@MOTWPalatine</strong>.
-            </p>
-          </div>
-        </div>
-      `,
+      html: customerHtml,
     })
+
+    if (replyResult.error) {
+      // Notify succeeded but auto-reply failed — still a success for the user
+      console.error('Resend customer auto-reply error:', replyResult.error)
+    }
 
     return res.status(200).json({ message: 'Success' })
   } catch (err) {
